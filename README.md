@@ -187,12 +187,12 @@ ping -c 3 github.com
 Once you have SSH (or console) access and the Pi can reach the internet:
 
 ```bash
-git clone https://github.com/<your-org>/<your-repo>.git
-cd <your-repo>
+git clone https://github.com/soleng2018/wips.git
+cd wips
 chmod +x nile-wips.sh
 ```
 
-(Or, without `git`: `curl -O https://raw.githubusercontent.com/<your-org>/<your-repo>/main/nile-wips.sh && chmod +x nile-wips.sh`.)
+(Or, without `git`: `curl -O https://raw.githubusercontent.com/soleng2018/wips/main/nile-wips.sh && chmod +x nile-wips.sh`.)
 
 You do **not** need to install anything by hand first — the script installs
 its own dependencies (`hostapd`, `iw`, `rfkill`, `iproute2`) automatically
@@ -248,6 +248,14 @@ sudo ./nile-wips.sh --help       # usage (works without sudo)
 | `--pass PSK` | `PASSPHRASE` | `ChangeMe123` | WPA2 passphrase (only used with `--security wpa2`) |
 | `--br0-mac AA:BB:..` | `BR0_MAC` | `02:1a:2b:3c:4d:00` | MAC seen on the wire (what your switch learns) |
 | `--wlan-mac AA:BB:..` | `WLAN_MAC` | `02:1a:2b:3c:4d:01` | The AP's BSSID |
+
+> **Always quote flag values**, e.g. `--ssid "Nile Corp"`. This is standard
+> shell behavior, not anything specific to the script — without quotes,
+> your shell splits on spaces and hands the script two separate arguments
+> instead of one (`--ssid Nile Corp` fails with `Unknown arg: Corp`). It's
+> easy to forget when your SSID happens to have no spaces today and gets
+> one later, so quote it every time as a habit — same goes for `--pass` if
+> your passphrase has spaces or shell-special characters (`$`, `!`, `*`, etc.).
 
 ### Examples
 
