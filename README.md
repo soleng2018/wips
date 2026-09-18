@@ -244,8 +244,8 @@ sudo ./nile-wips.sh --help       # usage (works without sudo)
 | `--ssid NAME` | `SSID` | mode default (`Nile-Corp` / `FreeWiFi-Guest`) | Broadcast SSID |
 | `--channel N` | `CHANNEL` | `6` | 1–14 = 2.4GHz, 36/40/44/48 = 5GHz (3B+/4/5 only) |
 | `--country CC` | `COUNTRY` | `US` | Wi-Fi regulatory country code |
-| `--security open\|wpa2` | `SECURITY` | `open` | Open or WPA2-PSK |
-| `--pass PSK` | `PASSPHRASE` | `ChangeMe123` | WPA2 passphrase (only used with `--security wpa2`) |
+| `--security open\|wpa2` | `SECURITY` | `wpa2` | Open or WPA2-PSK — all three modes are WPA2 by default |
+| `--pass PSK` | `PASSPHRASE` | `nilesecure` | WPA2 passphrase (only used with `--security wpa2`) |
 | `--br0-mac AA:BB:..` | `BR0_MAC` | `02:1a:2b:3c:4d:00` | MAC seen on the wire (what your switch learns) |
 | `--wlan-mac AA:BB:..` | `WLAN_MAC` | `02:1a:2b:3c:4d:01` | The AP's BSSID |
 
@@ -265,8 +265,11 @@ sudo ./nile-wips.sh rogue --ssid "Nile-Corp"
 sudo ./nile-wips.sh honeypot --channel 44          # 5GHz, non-DFS (3B+/4/5 only)
 sudo ./nile-wips.sh suspected --ssid "Random-Guest-AP"
 
-# Secured demo AP instead of open
+# Every mode is WPA2 ("nilesecure") by default — override the passphrase:
 sudo ./nile-wips.sh rogue --security wpa2 --pass "SomePassphrase123"
+
+# Or make it open instead, if that's what the demo calls for:
+sudo ./nile-wips.sh rogue --security open
 
 # Stop the beacon but keep everything else configured
 sudo ./nile-wips.sh stop

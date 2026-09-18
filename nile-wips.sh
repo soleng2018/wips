@@ -83,8 +83,8 @@ MODE=""
 SSID="${SSID:-}"
 CHANNEL="${CHANNEL:-6}"
 COUNTRY="${COUNTRY:-US}"
-SECURITY="${SECURITY:-open}"       # open | wpa2
-PASSPHRASE="${PASSPHRASE:-ChangeMe123}"
+SECURITY="${SECURITY:-wpa2}"       # open | wpa2
+PASSPHRASE="${PASSPHRASE:-nilesecure}"
 BR0_MAC="${BR0_MAC:-02:1a:2b:3c:4d:00}"   # what the switch learns on the WIRE
 WLAN_MAC="${WLAN_MAC:-02:1a:2b:3c:4d:01}" # AP BSSID (default = wired + 1)
 ETH_IF="${ETH_IF:-eth0}"
