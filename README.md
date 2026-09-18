@@ -105,6 +105,13 @@ Insert the SD card into the Pi. If you can, **connect an Ethernet cable**
 to your LAN now (see the warning above) — plug it in before powering on.
 Then power on the Pi and wait ~60–90 seconds for first boot.
 
+If you set **Wireless LAN** credentials in Imager (step 1), the Pi will
+also join that Wi-Fi network on its own during first boot — you don't need
+Ethernet just to reach it. Either connection gets you to the same Pi at
+this point, so use whichever you already have (Ethernet if you plugged it
+in, otherwise Wi-Fi). Reminder: this is still the *setup* Wi-Fi network,
+not the demo SSID — see the warning above.
+
 ### 3. Find the Pi's IP address
 
 - Easiest: check your router's DHCP client list for the hostname you set.
