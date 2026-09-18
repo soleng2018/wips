@@ -187,10 +187,17 @@ ping -c 3 github.com
 Once you have SSH (or console) access and the Pi can reach the internet:
 
 ```bash
+git --version >/dev/null 2>&1 || { sudo apt-get update && sudo apt-get install -y git; }
+
 git clone https://github.com/soleng2018/wips.git
 cd wips
 chmod +x nile-wips.sh
 ```
+
+Raspberry Pi OS **Lite** doesn't ship `git` by default, so the check above
+installs it if it's missing. (If `apt-get update` fails with something like
+`Release file ... is not valid yet`, see [Troubleshooting](#troubleshooting)
+below — it's almost always a clock problem, not a package problem.)
 
 (Or, without `git`: `curl -O https://raw.githubusercontent.com/soleng2018/wips/main/nile-wips.sh && chmod +x nile-wips.sh`.)
 
@@ -285,6 +292,47 @@ switching.
 
 ---
 
+## Running multiple Pis together
+
+The three modes are designed to run **simultaneously on separate Pis** —
+one demoing `rogue`, one `honeypot`, one `suspected` — so you can show all
+three WIPS detection scenarios side by side. The one thing you must not
+skip: **give each Pi its own `--br0-mac`/`--wlan-mac` pair.**
+
+By default every Pi uses the *same* hardcoded MACs
+(`02:1a:2b:3c:4d:00`/`:01` — see [Flags](#flags-override-via-flag-or-environment-variable)
+above). That's fine for a single Pi, but two or more Pis on the same LAN
+with identical MACs will fight over the same address on your switch
+(MAC-flapping) — worst for `rogue`, since it's the one bridged onto the
+wire, but worth avoiding across all three so BSSIDs don't collide over the
+air either.
+
+Pick a distinct MAC pair per Pi and pass them explicitly:
+
+```bash
+# Pi #1 — rogue (bridged to LAN)
+sudo ./nile-wips.sh rogue \
+  --br0-mac 02:1a:2b:3c:4d:00 --wlan-mac 02:1a:2b:3c:4d:01
+
+# Pi #2 — honeypot (off-wire)
+sudo ./nile-wips.sh honeypot \
+  --br0-mac 02:1a:2b:3c:4d:10 --wlan-mac 02:1a:2b:3c:4d:11
+
+# Pi #3 — suspected (off-wire, unrelated SSID)
+sudo ./nile-wips.sh suspected \
+  --br0-mac 02:1a:2b:3c:4d:20 --wlan-mac 02:1a:2b:3c:4d:21
+```
+
+These are just examples with the last octet bumped per Pi — any locally
+administered, unicast MAC works (first byte's low bit `0` = unicast,
+second-lowest bit `1` = locally administered, e.g. any `02:xx:xx:xx:xx:xx`),
+as long as each pair is unique across every Pi sharing the LAN/RF area.
+Setting `BR0_MAC`/`WLAN_MAC` as environment variables (e.g. in each Pi's
+`~/.bashrc`, or a per-Pi `.env` file you source before running) works the
+same as the flags and saves retyping them on every mode switch.
+
+---
+
 ## Verifying the AP is actually live
 
 Since there's no second radio on the Pi to scan with, verify from a
@@ -350,6 +398,24 @@ leaves the Pi half-configured.
 ---
 
 ## Troubleshooting
+
+**Clock is wrong / `apt` fails with "Release file ... is not valid yet".**
+Common on a fresh image: the Pi has no battery-backed RTC, so it boots with
+a stale clock (often set at image-build time), and if your network blocks
+NTP (UDP 123) — common on locked-down or guest Wi-Fi — it never corrects
+itself. `apt` then rejects the repo's signed Release files as not yet
+valid. Check for it:
+```bash
+timedatectl status   # look for "System clock synchronized: no"
+```
+If NTP is blocked but outbound HTTPS works, set the clock manually from an
+HTTPS response's `Date` header instead of waiting on NTP, then retry:
+```bash
+sudo date -s "$(curl -sI https://www.google.com | grep -i '^date:' | cut -d' ' -f2-)"
+sudo apt-get update
+```
+This only fixes the clock for the current boot — without a working NTP
+path (or an RTC module) it'll drift again after a reboot.
 
 **hostapd fails to start / AP doesn't come up.** Check the log:
 ```bash
